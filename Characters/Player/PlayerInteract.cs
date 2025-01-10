@@ -16,11 +16,11 @@ namespace Maledictus.Player
         [SerializeField] private ScriptableEventNoParam _onInteractableOutOfRange;
 
         private IInteractable _currentInteractable;
-        private BaseInventory _playerInventory;
+        //private BaseInventory _playerInventory;
 
         private void Awake()
         {
-            _playerInventory = GetComponent<BaseInventory>();
+            //_playerInventory = GetComponent<BaseInventory>();
         }
 
         private void OnEnable()
@@ -70,7 +70,7 @@ namespace Maledictus.Player
 
         private void HandleInteract()
         {
-            _currentInteractable?.Interact(_playerInventory);
+            //_currentInteractable?.Interact(_playerInventory);
         }
 
 

@@ -13,7 +13,7 @@ namespace Maledictus
         public float CellSize { get; private set; }
         public Vector2 OriginPosition { get; private set; }
 
-        private readonly T[,] gridArray;
+        private T[,] gridArray;
 
         public Grid(int width, int height, Vector2 originPosition, float cellSize, Func<Grid<T>, int, int, T> initializeGridObject)
         {

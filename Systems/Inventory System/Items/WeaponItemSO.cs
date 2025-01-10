@@ -1,15 +1,28 @@
-﻿using UnityEngine;
+﻿using System;
+using UnityEngine;
 
 namespace Maledictus.Inventory
 {
-    [CreateAssetMenu(menuName = "Inventory/Item/Weapon")]
+    public enum WeaponType
+    {
+        Swords,
+        Axes,
+        Scythes,
+        Spears,
+        Maces,
+    }
+
+    [CreateAssetMenu(menuName = "Inventory System/Item/Weapon")]
     public class WeaponItemSO : ItemSO
     {
-        public int Damage;
+        public WeaponType WeaponType;
 
-        private void Awake() 
-        { 
-            Type = ItemType.Weapons; 
+        [Min(1)] public int Damage;
+
+        private void Awake()
+        {
+            Category = (int)WeaponType;
+            ItemType = ItemType.Weapon;
             Stackable = false; 
         }
     }

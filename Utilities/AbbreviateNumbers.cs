@@ -1,3 +1,6 @@
+using System;
+using System.Text.RegularExpressions;
+
 namespace Maledictus
 {
     public static class AbbreviateNumbers
@@ -16,6 +19,19 @@ namespace Maledictus
                 return (number / (float)thousand).ToString("F1") + "K"; // Thousands
             else
                 return number.ToString(); // No abbreviation needed
+        }
+    }
+
+    public static class EnumExtentions
+    {
+        public static string ToSpacedString(this Enum value) => Regex.Replace(value.ToString(), "(\\B[A-Z])", " $1");
+
+        public static T GetNext<T>(this T value) where T : Enum 
+        {
+            T[] values = (T[])Enum.GetValues(value.GetType());
+            int index = Array.IndexOf(values, value) + 1;
+            value = (index >= values.Length) ? values[0] : values[index];
+            return value;
         }
     }
 }

@@ -1,4 +1,4 @@
-﻿using Maledictus.Player.Movement;
+﻿using Maledictus.AStar;
 using UnityEngine;
 
 namespace Maledictus.StateMachine.EnemyAI
@@ -35,7 +35,7 @@ namespace Maledictus.StateMachine.EnemyAI
 
             public override void Tick()
             {
-                if (Pathfinding.Instance == null || _player == null) return;
+                if (_player == null) return;
 
                 if (_elapsedTimer > 0f)
                     _elapsedTimer -= Time.deltaTime;
@@ -44,7 +44,7 @@ namespace Maledictus.StateMachine.EnemyAI
                     _elapsedTimer = 1f / _enemyMovement.MovementSpeed;
                     MoveToPlayerPosition();
 
-                    if (Pathfinding.Instance.Distance(_enemyMovement.LastPos, _player.transform.position) == 1)
+                    if (AStar.Grid.Instance.GetDistance(_enemyMovement.LastPos, _player.transform.position) == 1)
                         InRangeToChallenge = true;
                 }
             }

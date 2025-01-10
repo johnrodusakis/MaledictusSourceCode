@@ -31,12 +31,7 @@ namespace Maledictus.GameMenu
 
         [EndIf]
 
-        private bool _isSelected;
-
-        private void OnEnable()
-        {
-            ResizeTab();
-        }
+        private bool _isSelected = false;
 
         private void OnValidate()
         {
@@ -80,7 +75,6 @@ namespace Maledictus.GameMenu
         public void SelectTab() => HandleSelectedTab(true);
         public void DeselectTab() => HandleSelectedTab(false);
 
-
         private void HandleSelectedTab(bool isSelected)
         {
             _isSelected = isSelected;
@@ -88,8 +82,5 @@ namespace Maledictus.GameMenu
             transform.localScale = Vector3.one * scaleMultiplier;
             _tabText.SetSelectedTextColor(isSelected);
         }
-
-        public void ResizeTab() => GetComponent<RectTransform>().sizeDelta = _tabText.GetComponent<RectTransform>().sizeDelta + new Vector2(20f, 0f);
-
     }
 }

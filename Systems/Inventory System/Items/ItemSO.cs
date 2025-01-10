@@ -4,15 +4,13 @@ namespace Maledictus.Inventory
 {
     public enum ItemType
     {
-        Weapons,
-        Cosmetics,
-        Techniques,
-        Monsters,
-        Gold,
-        Trash,
+        Weapon,
+        Accessory,
+        Technique,
+        Monster,
     }
 
-    public enum Rarity
+    public enum ItemRarity
     {
         Common,     // White
         Uncommon,   // Green
@@ -24,12 +22,12 @@ namespace Maledictus.Inventory
     public abstract class ItemSO : ScriptableObject
     {
         public string Name;
-        public int Level;
-            
-        public Sprite Icon;
-        public Rarity Rarity;
+        public Sprite Icon;            
+        public ItemRarity ItemRarity;
+        [Min(1)] public int Level;
 
-        public ItemType Type { get; protected set; }
+        public int Category { get; protected set; }
+        public ItemType ItemType { get; protected set; }
         public bool Stackable { get; protected set; }
     }
 }

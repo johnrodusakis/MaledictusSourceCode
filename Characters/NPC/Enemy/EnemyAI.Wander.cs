@@ -56,27 +56,29 @@ namespace Maledictus.StateMachine.EnemyAI
 
                 var attempts = 0;
                 var validPosition = false;
-                var targetPosition = _enemyMovement.LastPos;
+
+                var node = AStar.Grid.Instance.GetNodeFromWorldPoint(_enemyMovement.LastPos);
 
                 while (!validPosition && attempts < 100)
                 {
                     var dirX = Random.Range(-_enemy.ExtendedDetectionRadius, _enemy.ExtendedDetectionRadius);
                     var dirY = Random.Range(-_enemy.ExtendedDetectionRadius, _enemy.ExtendedDetectionRadius);
 
-                    targetPosition = _enemy.transform.position + new Vector3(dirX, dirY);
+                    var targetPosition = _enemy.transform.position + new Vector3(dirX, dirY);
+                    node = AStar.Grid.Instance.GetNodeFromWorldPoint(targetPosition);
                     if (_spawner != null)
                     {
-                        if (_spawner.IsInsideBounds(targetPosition) && Pathfinding.Instance.IsWalkable(targetPosition))
+                        if (_spawner.IsInsideBounds(targetPosition) && node.IsWalkable)
                             validPosition = true;
                     }
-                    else if(Pathfinding.Instance.IsWalkable(targetPosition))
+                    else if(node.IsWalkable)
                         validPosition = true;
 
                     attempts++;
                 }
 
                 if (validPosition)
-                    _enemyMovement.MoveTo(targetPosition);
+                    _enemyMovement.MoveTo(node.WorldPosition);
                 else if (_spawner != null)
                     _enemyMovement.MoveTo(_spawner.transform.position);
                 else

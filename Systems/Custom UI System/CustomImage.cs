@@ -32,7 +32,7 @@ namespace Maledictus.CustomUI
         public void SetColor(Color color) => _image.color = color;
         public void SetAlpha(float alpha) => _image.DOFade(alpha, 0f);
         public void EnableImage(bool enable) => _image.enabled = enable;
-
+        public void FlipY(bool flip) => _image.transform.DOScaleY(flip ? -1f : 1f, 0f);
 
         public void FadeIn(float alpha = 1f)
         {
@@ -49,5 +49,8 @@ namespace Maledictus.CustomUI
                 EnableImage(false);
             });
         }
+
+        private void OnDisable() => DOTween.Kill(this.gameObject);
+        private void OnDestroy() => DOTween.Kill(this.gameObject);
     }
 }

@@ -1,3 +1,4 @@
+using Maledictus.AStar;
 using System.Collections;
 using System.Collections.Generic;
 using UnityEditor;
@@ -14,7 +15,7 @@ namespace Maledictus
         protected Vector2 _targetPos = new(-0.5f, -0.5f);
         protected Vector2 _unitDirection = Vector2.down;
 
-        protected Queue<Vector2> _currentPath;
+        protected Queue<Vector3> _currentPath;
 
         protected bool _canMove = true;
         protected bool _isRunning = false;
@@ -37,7 +38,7 @@ namespace Maledictus
 
         protected virtual void Start()
         {
-            _currentPath = new Queue<Vector2>();
+            _currentPath = new Queue<Vector3>();
 
             InitializeMovementSpeed();
             InitializePosition();
@@ -50,54 +51,42 @@ namespace Maledictus
 
         private void InitializePosition()
         {
-            var worldPos = Pathfinding.Instance.Grid.GetWorldPosition(transform.position);
+            var worldPos = AStar.Grid.Instance.GetNodeFromWorldPoint(transform.position).WorldPosition;
 
             _targetPos = worldPos;
             _lastPos = worldPos;
             _moveToPos = worldPos;
         }
 
-        protected bool IsValidTile(Vector2 targetPos)
+        public void OnPathFound(Vector3[] newPath, bool pathSuccessful)
         {
-            var isValidTile = Pathfinding.Instance.IsWalkable(targetPos);
+            if (pathSuccessful)
+            {
+                _currentPath = new Queue<Vector3>(newPath);
 
-            if (!isValidTile)
-                InitializePosition();
+                if (_movementCoroutine != null)
+                {
+                    StopCoroutine(_movementCoroutine);
+                    _movementCoroutine = null;
+                }
 
-            return isValidTile;
+                _movementCoroutine = StartCoroutine(MoveCoroutine());
+            }
         }
 
-        protected void TryMoveTo(List<Vector3> path)
+        protected void TryMoveTo(Vector3 targetPos)
         {
-            if (path == null || path.Count == 0) return;
-
-            _unitDirection = LookDirection(path[0]);
-
-            if (!IsValidTile(_targetPos)) return;
-
-            _currentPath.Clear();
-
-            if (_movementCoroutine != null)
-            {
-                StopCoroutine(_movementCoroutine);
-                _movementCoroutine = null;
-            }
-
-            foreach (var point in path)
-            {
-                _currentPath.Enqueue(point);
-            }
-
-            _movementCoroutine = StartCoroutine(MoveCoroutine());
+            _targetPos = targetPos;
+            PathRequestManager.RequestPath(new PathRequest(_lastPos, targetPos, OnPathFound));
         }
 
-        private IEnumerator MoveCoroutine()
+        protected IEnumerator MoveCoroutine()
         {
             while (_currentPath.Count > 0)
             {
                 _moveToPos = _currentPath.Dequeue();
 
-                _unitDirection = LookDirection(_moveToPos);
+                LookDirection(_moveToPos);
                 _canMove = false;
 
                 while (!ReachedDestination(_moveToPos))
@@ -120,7 +109,7 @@ namespace Maledictus
             _animationController.HandleWalkDirectionAnimation(_unitDirection * multiplier);
         }
 
-        private Vector2 LookDirection(Vector2 target)
+        protected void LookDirection(Vector2 target)
         {
             var direction = target - (Vector2)transform.position;
 
@@ -129,13 +118,12 @@ namespace Maledictus
             var weightY = Mathf.Abs(direction.y);
 
             if (weightY >= weightX)
-                return direction.y > 0 ? Vector2.up : Vector2.down;
+                _unitDirection = direction.y > 0 ? Vector2.up : Vector2.down;
             else
-                return direction.x > 0 ? Vector2.right : Vector2.left;
+                _unitDirection = direction.x > 0 ? Vector2.right : Vector2.left;
         }
 
         public bool ReachedDestination(Vector2 destination) => (destination - (Vector2)transform.position).sqrMagnitude < Mathf.Epsilon;
-        protected void SetTarget(Vector2 target) => _targetPos = Pathfinding.Instance.Grid.GetWorldPosition(target);
 
         protected abstract void InitializeMovementSpeed();
         protected virtual void ToggleRunning(bool sprintInput) => _isRunning = sprintInput;

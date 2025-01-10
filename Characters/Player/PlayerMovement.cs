@@ -17,6 +17,8 @@ namespace Maledictus.Player.Movement
 
             _moveInput = Vector2.zero;
             _moveInputs = new List<Vector2>();
+
+            //TryMoveTo(_targetPos + new Vector2(5f, 0f));
         }
 
         private void OnEnable()
@@ -44,17 +46,16 @@ namespace Maledictus.Player.Movement
 
         private void Move()
         {
+            if(!_canMove) return;
+
             _moveInput = _moveInputs.Count > 0 ? _moveInputs[^1] : Vector2.zero;
 
             if (_moveInput != Vector2.zero && _canMove)
             {
-                var path = new List<Vector3>();
-
-                var newPos = _targetPos + _moveInput;
-                SetTarget(newPos);
-                path.Add(newPos);
-
-                TryMoveTo(path);
+                var newPos = _lastPos + _moveInput;
+                LookDirection(newPos);
+                
+                TryMoveTo(newPos);
             }
         }
 

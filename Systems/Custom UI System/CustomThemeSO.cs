@@ -39,13 +39,13 @@ namespace Maledictus.CustomUI
         [SerializeField] private Color _mythicColor = Color.white;
         [SerializeField] private Color _legendaryColor = Color.white;
         
-        public Color GetRarityColor(Rarity rarity) => rarity switch
+        public Color GetRarityColor(ItemRarity rarity) => rarity switch
         {
-            Rarity.Common => _commonColor,
-            Rarity.Uncommon => _uncommonColor,
-            Rarity.Rare => _rareColor,
-            Rarity.Mythic => _mythicColor,
-            Rarity.Legendary => _legendaryColor,
+            ItemRarity.Common => _commonColor,
+            ItemRarity.Uncommon => _uncommonColor,
+            ItemRarity.Rare => _rareColor,
+            ItemRarity.Mythic => _mythicColor,
+            ItemRarity.Legendary => _legendaryColor,
             _ => Color.white,
         };
 

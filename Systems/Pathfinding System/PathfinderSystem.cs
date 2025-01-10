@@ -1,3 +1,4 @@
+using Ink.Parsed;
 using UnityEditor;
 using UnityEngine;
 using VInspector;
@@ -7,8 +8,8 @@ namespace Maledictus
     public class PathfinderSystem : MonoBehaviour
     {
         [Tab("Grid")]
-        [SerializeField] private int _gridWidth = 40;
-        [SerializeField] private int _gridHeight = 20;
+        [SerializeField] private int _gridWidth = 105;
+        [SerializeField] private int _gridHeight = 105;
 
         [Space(15f)]
         [SerializeField] private LayerMask _whatIsObstacle;
@@ -33,7 +34,7 @@ namespace Maledictus
         {
             if (!_displayDebugGrid) return;
 
-            Pathfinding.Instance?.DrawGrid(_walkableColor, _obstacleColor);
+            //Pathfinding.Instance?.DrawGrid(_walkableColor, _obstacleColor);
         }
     }
 }

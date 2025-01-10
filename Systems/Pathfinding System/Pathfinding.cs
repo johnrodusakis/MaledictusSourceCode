@@ -6,7 +6,7 @@ namespace Maledictus
 {
     public class Pathfinding
     {
-        public static Pathfinding Instance { get; private set; }
+        //public static Pathfinding Instance { get; private set; }
 
         private const int MOVE_STRAIGHT_COST = 10;
         private const int MOVE_DIAGONAL_COST = 14;
@@ -20,10 +20,10 @@ namespace Maledictus
 
         public Pathfinding(int width, int height, Vector3 originPosition, LayerMask whatIsObstacle)
         {
-            Instance = this;
+            //Instance = this;
             this.WhatIsObstacle = whatIsObstacle;
             Vector2 adjustedOriginPosition = (Vector2)originPosition - new Vector2(width / 2f, height / 2f);
-            Grid = new Grid<PathNode>(width, height, adjustedOriginPosition, 1, (Grid<PathNode> g, int x, int y) => new PathNode(g, x, y));
+            Grid = new Grid<PathNode>(width, height, adjustedOriginPosition, .99f, (Grid<PathNode> g, int x, int y) => new PathNode(g, x, y));
 
             // Initialize walkability
             InitializeWalkability();
@@ -94,28 +94,6 @@ namespace Maledictus
 
             return vectorPath;
         }
-
-        //public List<Vector3> FindPath(Vector3 startWorldPosition, Vector3 endWorldPosition)
-        //{
-        //    var (startX, startY) = Grid.GetXY(startWorldPosition);
-        //    var (endX, endY) = Grid.GetXY(endWorldPosition);
-
-        //    if (startX == endX && startY == endY)
-        //        return new List<Vector3> { startWorldPosition };
-
-        //    var path = FindPath(startX, startY, endX, endY);
-
-        //    if (path == null) 
-        //        return null;
-
-        //    var vectorPath = new List<Vector3>();
-
-        //    foreach ( var pathNode in path)
-        //        vectorPath.Add((new Vector3(pathNode.X, pathNode.Y) + (Vector3)Grid.OriginPosition) * Grid.CellSize + 0.5f * Grid.CellSize * Vector3.one);
-
-        //    //vectorPath.RemoveAt(0);
-        //    return vectorPath;
-        //}
 
         public List<Vector3> FindPath(Vector3 startWorldPosition, Vector3 endWorldPosition)
         {

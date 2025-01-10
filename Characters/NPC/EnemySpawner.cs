@@ -1,3 +1,4 @@
+using Maledictus.AStar;
 using Maledictus.StateMachine.EnemyAI;
 using System.Collections.Generic;
 using UnityEditor;
@@ -39,7 +40,7 @@ namespace Maledictus
         [Button]
         private void SpawnUnit()
         {
-            if (Pathfinding.Instance == null) return;
+            if (AStar.Grid.Instance == null) return;
 
             var attempts = 0;
             var validPosition = false;
@@ -50,8 +51,10 @@ namespace Maledictus
                 var posY = Random.Range(-HalfHeight, HalfHeight);
 
 
-                targetPos = Pathfinding.Instance.Grid.GetWorldPosition(transform.position + new Vector3(posX, posY));
-                if (IsInsideBounds(targetPos) && Pathfinding.Instance.IsWalkable(targetPos))
+                var node = AStar.Grid.Instance.GetNodeFromWorldPoint(transform.position + new Vector3(posX, posY));
+                targetPos = node.WorldPosition;
+
+                if (IsInsideBounds(targetPos) && node.IsWalkable)
                     validPosition = true;
 
                 attempts++;

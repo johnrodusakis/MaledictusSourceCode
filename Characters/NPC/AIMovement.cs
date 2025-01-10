@@ -9,44 +9,42 @@ namespace Maledictus
 
         public void MoveTo(Vector2 target, int offset = 0)
         {
-            SetTarget(target);
+            //var path = new List<Vector3>();// Pathfinding.Instance.FindPath(transform.position, _targetPos);
 
-            var path = Pathfinding.Instance.FindPath(transform.position, _targetPos);
+            //if(offset > 0 && path.Count > 1)
+            //{
+            //    var pathLength = path.Count - 1;
 
-            if(offset > 0 && path.Count > 1)
-            {
-                var pathLength = path.Count - 1;
+            //    for (int i = pathLength; i > pathLength - offset; i--)
+            //        path.RemoveAt(i);
 
-                for (int i = pathLength; i > pathLength - offset; i--)
-                    path.RemoveAt(i);
+            //    SetTarget(path[^1]);
+            //}
 
-                SetTarget(path[^1]);
-            }
+            //if (!IsValidTile(path[^1]))
+            //    path = ChooseTheClosestValidTile(path);
 
-            if (!IsValidTile(path[^1]))
-                path = ChooseTheClosestValidTile(path);
-
-            if (path?.Count > 1)
-                TryMoveTo(path);
+            //if (path?.Count > 1)
+                TryMoveTo(target);
         }
 
 
-        private List<Vector3> ChooseTheClosestValidTile(List<Vector3> path)
-        {
-            var validPath = path;
+        //private List<Vector3> ChooseTheClosestValidTile(List<Vector3> path)
+        //{
+        //    var validPath = path;
 
-            for (int i = path.Count - 1; i > 0; i--)
-            {
-                if (!IsValidTile(path[i]))
-                    validPath.RemoveAt(i);
-                else
-                {
-                    _targetPos = validPath[i];
-                    break;
-                }
-            }
-            return validPath;
-        }
+        //    for (int i = path.Count - 1; i > 0; i--)
+        //    {
+        //        if (!IsValidTile(path[i]))
+        //            validPath.RemoveAt(i);
+        //        else
+        //        {
+        //            _targetPos = validPath[i];
+        //            break;
+        //        }
+        //    }
+        //    return validPath;
+        //}
 
         protected override void InitializeMovementSpeed() => _movementSpeed = _walkSpeed;
     }

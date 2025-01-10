@@ -5,6 +5,6 @@
     public interface IInteractable
     {
         string InteractionMessage();
-        void Interact(BaseInventory inventory);
+        //void Interact(BaseInventory inventory);
     }
 }

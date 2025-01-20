@@ -6,6 +6,7 @@ namespace Maledictus
 {
     public class InputManager : MonoBehaviour
     {
+        public static event Action<Vector2> OnMove;
         public static event Action<Vector2> OnMoveStarted;
         public static event Action<Vector2> OnMoveEnded;
 
@@ -23,6 +24,7 @@ namespace Maledictus
 
         private PlayerInput _playerInput;
 
+        private InputAction _moveAction;
         private InputAction _moveUpAction;
         private InputAction _moveDownAction;
         private InputAction _moveRightAction;
@@ -49,6 +51,8 @@ namespace Maledictus
 
         private void SetupInputActions()
         {
+            _moveAction = _playerInput.actions["Move"];
+
             _moveUpAction = _playerInput.actions["MoveUp"];
             _moveDownAction = _playerInput.actions["MoveDown"];
             _moveRightAction = _playerInput.actions["MoveRight"];
@@ -67,6 +71,9 @@ namespace Maledictus
 
         private void RegisterEventInput()
         {
+            _moveAction.performed += ctx => OnMove?.Invoke(ctx.ReadValue<Vector2>());
+
+
             _moveUpAction.started += ctx => OnMoveStarted?.Invoke(Vector2.up);
             _moveDownAction.started += ctx => OnMoveStarted?.Invoke(Vector2.down);
             _moveRightAction.started += ctx => OnMoveStarted?.Invoke(Vector2.right);

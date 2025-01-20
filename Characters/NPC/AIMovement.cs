@@ -3,7 +3,7 @@ using UnityEngine;
 
 namespace Maledictus
 {
-    public class AIMovement : BaseMovement
+    public class AIMovement : BaseGridMovement
     {
         [SerializeField] private float _walkSpeed = 3f;
 
@@ -47,5 +47,6 @@ namespace Maledictus
         //}
 
         protected override void InitializeMovementSpeed() => _movementSpeed = _walkSpeed;
+        public override Vector2Int GetGridPosition() => Vector2Int.zero;
     }
 }

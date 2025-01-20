@@ -1,80 +1,118 @@
-﻿using System.Collections.Generic;
+﻿using Obvious.Soap;
+using System.Collections.Generic;
 using UnityEngine;
 
 namespace Maledictus.AStar
 {
     public class GridManager : MonoBehaviour
     {
-        private Dictionary<Vector2Int, GridChunk> _loadedChunks = new Dictionary<Vector2Int, GridChunk>();
-        public int ActiveChunkRadius = 2; // Number of chunks to keep active around the player.
-        private int ChunkSize = 100; // Match the chunk size in GridChunk.
+        public static GridManager Instance { get; private set; }
 
-        public Transform Player;
+        [SerializeField] private int _activeChunkRadius = 2; // Number of chunks to keep active around the player.
+        [SerializeField] private int _chunkSize = 100; // Match the chunk size in GridChunk.
 
-        private void Update()
+        [SerializeField] private LayerMask _whatIsObstacle;
+
+        [SerializeField] private ScriptableVariable<Vector2Int> _playerGridPosition;
+
+        private List<GridChunkData> _loadedChunks = new();
+
+        public int ChunkSize => _chunkSize;
+
+
+        private void Awake()
         {
-            Vector2Int playerChunkCoord = GetChunkCoordFromWorldPosition(Player.position);
-            LoadChunksAroundPlayer(playerChunkCoord);
+            Instance = this;
         }
 
-        private Vector2Int GetChunkCoordFromWorldPosition(Vector3 position)
+        private void Start()
         {
-            int x = Mathf.FloorToInt(position.x / ChunkSize);
-            int y = Mathf.FloorToInt(position.y / ChunkSize);
+            LoadChunksAroundPlayer(_playerGridPosition.Value);
+        }
+
+        private void OnEnable()
+        {
+            _playerGridPosition.OnValueChanged += LoadChunksAroundPlayer;
+        }
+
+        private void OnDisable()
+        {
+            _playerGridPosition.OnValueChanged -= LoadChunksAroundPlayer;
+        }
+
+        public Vector2Int GetChunkCoordFromWorldPosition(Vector3 position)
+        {
+            int x = Mathf.RoundToInt(position.x / _chunkSize);
+            int y = Mathf.RoundToInt(position.y / _chunkSize);
+            //Debug.Log($"Pos: {position}\nX: {x}, Y: {y}");
             return new Vector2Int(x, y);
         }
 
         private void LoadChunksAroundPlayer(Vector2Int centerChunkCoord)
         {
-            HashSet<Vector2Int> requiredChunks = new HashSet<Vector2Int>();
-
-            for (int x = -ActiveChunkRadius; x <= ActiveChunkRadius; x++)
+            for (int x = -_activeChunkRadius; x <= _activeChunkRadius; x++)
             {
-                for (int y = -ActiveChunkRadius; y <= ActiveChunkRadius; y++)
+                for (int y = -_activeChunkRadius; y <= _activeChunkRadius; y++)
                 {
-                    Vector2Int chunkCoord = centerChunkCoord + new Vector2Int(x, y);
-                    requiredChunks.Add(chunkCoord);
+                    var chunkCoord = centerChunkCoord + new Vector2Int(x, y);
 
-                    if (!_loadedChunks.ContainsKey(chunkCoord))
-                    {
+                    if (!CheckForCoordinates(chunkCoord).Item1)
                         LoadChunk(chunkCoord);
-                    }
                 }
+            }
+        }
+
+        private (bool, GridChunk) CheckForCoordinates(Vector2Int coordinates)
+        {
+            foreach (var chunk in _loadedChunks)
+            {
+                if(chunk.GridPosition.Equals(coordinates))
+                    return (true, chunk.GridChunk);
             }
 
-            // Unload chunks no longer needed.
-            foreach (var chunkCoord in _loadedChunks.Keys)
-            {
-                if (!requiredChunks.Contains(chunkCoord))
-                {
-                    UnloadChunk(chunkCoord);
-                }
-            }
+            return (false, null);
+        }
+
+        public GridChunk GetGridChunk(Vector2Int gridPos)
+        {
+            var (result, chunk) = CheckForCoordinates(gridPos);
+            return result ? chunk : null;
         }
 
         private void LoadChunk(Vector2Int chunkCoord)
         {
-            GridChunk newChunk = new GridChunk(chunkCoord);
-            _loadedChunks.Add(chunkCoord, newChunk);
+            var newChunk = new GridChunk(chunkCoord, _chunkSize + 4, _whatIsObstacle);
+            _loadedChunks.Add(new GridChunkData(chunkCoord, newChunk));
         }
 
-        private void UnloadChunk(Vector2Int chunkCoord)
+        public (Vector2Int, Node) GetNodeFromWorldPoint(Vector3 worldPosition)
         {
-            _loadedChunks.Remove(chunkCoord);
+            var chunkCoord = GetChunkCoordFromWorldPosition(worldPosition);
+            var (result, chunk) = CheckForCoordinates(chunkCoord);
+
+            if (result)
+                return (chunkCoord, chunk.GetNodeFromWorldPoint(worldPosition));
+
+            return (chunkCoord, null);
         }
 
-        public Node GetNodeFromWorldPosition(Vector3 worldPosition)
+        public GridChunk MergedGridChunk(GridChunk chunk1, GridChunk chunk2)
         {
-            Vector2Int chunkCoord = GetChunkCoordFromWorldPosition(worldPosition);
-            if (!_loadedChunks.ContainsKey(chunkCoord)) return null;
-
-            Vector2Int localPosition = new Vector2Int(
-                Mathf.FloorToInt(worldPosition.x) % ChunkSize,
-                Mathf.FloorToInt(worldPosition.y) % ChunkSize
-            );
-
-            return _loadedChunks[chunkCoord].GetNode(localPosition);
+            return new GridChunk(chunk2.ChunkPosition, _chunkSize * 2, _whatIsObstacle);
         }
+
     }
 
+    [System.Serializable]
+    public class GridChunkData
+    {
+        public Vector2Int GridPosition;
+        public GridChunk GridChunk;
+
+        public GridChunkData(Vector2Int pos, GridChunk chunk)
+        {
+            GridPosition = pos;
+            GridChunk = chunk;
+        }
+    }
 }

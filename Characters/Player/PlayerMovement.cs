@@ -1,12 +1,16 @@
+using Maledictus.AStar;
+using Obvious.Soap;
 using System.Collections.Generic;
 using UnityEngine;
 
 namespace Maledictus.Player.Movement
 {
-    public class PlayerMovement : BaseMovement
+    public class PlayerMovement : BaseGridMovement
     {
         [SerializeField] private float _walkSpeed;
         [SerializeField] private float _runSpeed;
+
+        [SerializeField] private ScriptableVariable<Vector2Int> _playerGridPosition;
 
         private Vector2 _moveInput = Vector2.zero;
         private List<Vector2> _moveInputs = new();
@@ -18,7 +22,7 @@ namespace Maledictus.Player.Movement
             _moveInput = Vector2.zero;
             _moveInputs = new List<Vector2>();
 
-            //TryMoveTo(_targetPos + new Vector2(5f, 0f));
+            _playerGridPosition.Value = _gridPosition;
         }
 
         private void OnEnable()
@@ -46,7 +50,7 @@ namespace Maledictus.Player.Movement
 
         private void Move()
         {
-            if(!_canMove) return;
+            if (!_canMove) return;
 
             _moveInput = _moveInputs.Count > 0 ? _moveInputs[^1] : Vector2.zero;
 
@@ -54,7 +58,13 @@ namespace Maledictus.Player.Movement
             {
                 var newPos = _lastPos + _moveInput;
                 LookDirection(newPos);
-                
+
+
+                var gridCoord = GridManager.Instance.GetChunkCoordFromWorldPosition(newPos);
+                // Load the new chunk if it's not already loaded
+                if (!_gridPosition.Equals(gridCoord))
+                    _playerGridPosition.Value = _gridPosition = gridCoord;
+
                 TryMoveTo(newPos);
             }
         }
@@ -84,5 +94,6 @@ namespace Maledictus.Player.Movement
 
         protected override void InitializeMovementSpeed() => _movementSpeed = _walkSpeed;
         protected override bool IsMoving() => _moveInput != Vector2.zero || !_canMove;
+        public override Vector2Int GetGridPosition() => _playerGridPosition;
     }
 }

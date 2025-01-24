@@ -11,18 +11,24 @@ namespace Maledictus.Player.Movement
         [SerializeField] private float _runSpeed;
 
         [SerializeField] private ScriptableVariable<Vector2Int> _playerGridPosition;
+        [SerializeField] private ScriptableVariable<Vector3> _playerPosition;
 
         private Vector2 _moveInput = Vector2.zero;
         private List<Vector2> _moveInputs = new();
 
+        protected override void Awake()
+        {
+            base.Awake();
+        }
+
         protected override void Start()
         {
+            _playerGridPosition.Value = GridManager.Instance.GetChunkCoordFromWorldPosition(transform.position);
+
             base.Start();
 
             _moveInput = Vector2.zero;
             _moveInputs = new List<Vector2>();
-
-            _playerGridPosition.Value = _gridPosition;
         }
 
         private void OnEnable()
@@ -59,11 +65,11 @@ namespace Maledictus.Player.Movement
                 var newPos = _lastPos + _moveInput;
                 LookDirection(newPos);
 
-
                 var gridCoord = GridManager.Instance.GetChunkCoordFromWorldPosition(newPos);
+
                 // Load the new chunk if it's not already loaded
-                if (!_gridPosition.Equals(gridCoord))
-                    _playerGridPosition.Value = _gridPosition = gridCoord;
+                if (!_playerGridPosition.Equals(gridCoord))
+                    _playerGridPosition.Value = gridCoord;
 
                 TryMoveTo(newPos);
             }

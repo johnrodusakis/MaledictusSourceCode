@@ -44,7 +44,10 @@ namespace Maledictus.StateMachine.EnemyAI
                     _elapsedTimer = 1f / _enemyMovement.MovementSpeed;
                     MoveToPlayerPosition();
 
-                    if (AStar.Grid.Instance.GetDistance(_enemyMovement.LastPos, _player.transform.position) == 1)
+                    var (_, enemyNode) = GridManager.Instance.GetNodeFromWorldPoint(_enemyMovement.LastPos);
+                    var (_, playerNode) = GridManager.Instance.GetNodeFromWorldPoint(_player.transform.position);
+
+                    if (GridManager.Instance.GetDistance(enemyNode, playerNode) == 1)
                         InRangeToChallenge = true;
                 }
             }

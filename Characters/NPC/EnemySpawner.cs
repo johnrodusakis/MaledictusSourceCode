@@ -20,27 +20,28 @@ namespace Maledictus
         [SerializeField] private EnemyAI _enemy;
         [SerializeField] private bool _spawnOnStart = true;
 
-        private float HalfWidth => _width * 0.5f;
-        private float HalfHeight => _height * 0.5f;
+        public float HalfWidth => _width * 0.5f;
+        public float HalfHeight => _height * 0.5f;
 
         public Dictionary<string, Vector2> Bounds => new()
         {
-                { LEFT_DOWN,    new Vector2(transform.position.x - HalfWidth, transform.position.y - HalfHeight) },
-                { LEFT_UP,      new Vector2(transform.position.x - HalfWidth, transform.position.y + HalfHeight) },
-                { RIGHT_UP,     new Vector2(transform.position.x + HalfWidth, transform.position.y + HalfHeight) },
-                { RIGHT_DOWN,   new Vector2(transform.position.x + HalfWidth, transform.position.y - HalfHeight) },
+            { LEFT_DOWN,    new Vector2(transform.position.x - HalfWidth, transform.position.y - HalfHeight) },
+            { LEFT_UP,      new Vector2(transform.position.x - HalfWidth, transform.position.y + HalfHeight) },
+            { RIGHT_UP,     new Vector2(transform.position.x + HalfWidth, transform.position.y + HalfHeight) },
+            { RIGHT_DOWN,   new Vector2(transform.position.x + HalfWidth, transform.position.y - HalfHeight) },
         };
 
         private void Start()
         {
-            if(_spawnOnStart)
+            if (_spawnOnStart)
                 SpawnUnit();
         }
+
 
         [Button]
         private void SpawnUnit()
         {
-            if (AStar.Grid.Instance == null) return;
+            if (GridManager.Instance == null) return;
 
             var attempts = 0;
             var validPosition = false;
@@ -50,8 +51,8 @@ namespace Maledictus
                 var posX = Random.Range(-HalfWidth, HalfWidth);
                 var posY = Random.Range(-HalfHeight, HalfHeight);
 
+                var (chunkCoord, node) = GridManager.Instance.GetNodeFromWorldPoint(transform.position + new Vector3(posX, posY));
 
-                var node = AStar.Grid.Instance.GetNodeFromWorldPoint(transform.position + new Vector3(posX, posY));
                 targetPos = node.WorldPosition;
 
                 if (IsInsideBounds(targetPos) && node.IsWalkable)

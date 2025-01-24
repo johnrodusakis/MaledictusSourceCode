@@ -1,4 +1,5 @@
-﻿using UnityEngine;
+﻿using Maledictus.AStar;
+using UnityEngine;
 using Random = UnityEngine.Random;
 
 namespace Maledictus.StateMachine.EnemyAI
@@ -57,7 +58,7 @@ namespace Maledictus.StateMachine.EnemyAI
                 var attempts = 0;
                 var validPosition = false;
 
-                var node = AStar.Grid.Instance.GetNodeFromWorldPoint(_enemyMovement.LastPos);
+                var (_, node) = GridManager.Instance.GetNodeFromWorldPoint(_enemyMovement.LastPos);
 
                 while (!validPosition && attempts < 100)
                 {
@@ -65,7 +66,7 @@ namespace Maledictus.StateMachine.EnemyAI
                     var dirY = Random.Range(-_enemy.ExtendedDetectionRadius, _enemy.ExtendedDetectionRadius);
 
                     var targetPosition = _enemy.transform.position + new Vector3(dirX, dirY);
-                    node = AStar.Grid.Instance.GetNodeFromWorldPoint(targetPosition);
+                    (_, node) = GridManager.Instance.GetNodeFromWorldPoint(targetPosition);
                     if (_spawner != null)
                     {
                         if (_spawner.IsInsideBounds(targetPosition) && node.IsWalkable)

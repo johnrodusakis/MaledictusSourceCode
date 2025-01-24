@@ -32,17 +32,10 @@ namespace Maledictus
         public Vector2 TargetPos => _targetPos;
         public Vector2 LastPos => _lastPos;
 
-        protected Vector2Int _gridPosition;
-        //protected NavMeshAgent _agent;
-
-        private void Awake()
+        protected virtual void Awake()
         {
             _rb = GetComponent<Rigidbody2D>();
             _animationController = GetComponent<AnimationController>();
-
-            //_agent = GetComponent<NavMeshAgent>();
-            //_agent.updateRotation = false;
-            //_agent.updateUpAxis = false;
         }
 
         protected virtual void Start()
@@ -60,15 +53,15 @@ namespace Maledictus
 
         private void InitializePosition()
         {
-            //var worldPos = AStar.Grid.Instance.GetNodeFromWorldPoint(transform.position).WorldPosition;
-            var (gridCoord, node) = GridManager.Instance.GetNodeFromWorldPoint(transform.position);
+            var (_, node) = GridManager.Instance.GetNodeFromWorldPoint(transform.position);
 
-            _gridPosition = gridCoord;
             var worldPos = node.WorldPosition;
 
             _targetPos = worldPos;
             _lastPos = worldPos;
             _moveToPos = worldPos;
+
+            transform.position = _moveToPos;
         }
 
         public void OnPathFound(Vector3[] newPath, bool pathSuccessful)
@@ -146,6 +139,8 @@ namespace Maledictus
 
         private void OnDrawGizmos()
         {
+            if (!Application.isPlaying) return;
+
             Handles.DrawDottedLine(transform.position, _moveToPos, 2f);
 
             if (_currentPath?.Count > 0)

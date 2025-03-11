@@ -1,6 +1,6 @@
 ﻿using DG.Tweening;
 using Maledictus.CustomUI;
-using Maledictus.Events;
+using Maledictus.CustomSoap;
 using Obvious.Soap;
 using UnityEngine;
 using VInspector;
@@ -11,7 +11,7 @@ namespace Maledictus.Tooltip
     {
         [SerializeField] private RectTransform _tooltipContent;
         [SerializeField] private CustomThemeSO _theme;
-        public Inventory.ItemRarity Rarity;
+        public Inventory.Rarity Rarity;
 
         [Space(15f)]
         [Header("Header UI")]
@@ -104,10 +104,10 @@ namespace Maledictus.Tooltip
 
         public string Name;
         public int Level;
-        public Inventory.ItemRarity Rarity;
+        public Inventory.Rarity Rarity;
         public string Description;
 
-        public ItemTooltip(Vector2 position, string name, int level, Inventory.ItemRarity rarity, string description)
+        public ItemTooltip(Vector2 position, string name, int level, Inventory.Rarity rarity, string description)
         {
             Position = position;
 

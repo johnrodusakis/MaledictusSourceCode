@@ -1,4 +1,5 @@
 using System;
+using System.Globalization;
 using System.Text.RegularExpressions;
 
 namespace Maledictus
@@ -20,9 +21,11 @@ namespace Maledictus
             else
                 return number.ToString(); // No abbreviation needed
         }
+
+        public static string FormattedNumber(int number) => string.Format(CultureInfo.InvariantCulture, "{0:N0}", number);
     }
 
-    public static class EnumExtentions
+    public static class EnumExtensions
     {
         public static string ToSpacedString(this Enum value) => Regex.Replace(value.ToString(), "(\\B[A-Z])", " $1");
 

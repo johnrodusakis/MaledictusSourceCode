@@ -1,15 +1,27 @@
 using DG.Tweening;
-using Maledictus.Events;
+using Maledictus.CustomSoap;
 using Maledictus.Inventory;
 using Obvious.Soap;
-using System;
+using System.Collections.Generic;
 using UnityEngine;
 
 namespace Maledictus.GameMenu
 {
+    [System.Serializable]
+    public class InventoryData<T> where T : ItemSO
+    {
+        public InventorySO<T> InventorySO;
+        public ScriptableEventNoParam OnItemNewNotification;
+    }
+
 
     public class CharacterTabUI : MonoBehaviour
     {
+        public System.Action<bool> OnNewNotification { get; set; }
+
+        [SerializeField] private InventoryData<WeaponItemSO> _weaponInventory;
+        [SerializeField] private List<InventoryData<AccessoryItemSO>> _accessoryInventory;
+
         [SerializeField] private CanvasGroup _characterGearCanvasGroup;
         [SerializeField] private CanvasGroup _equipNewGearCanvasGroup;
 
@@ -17,8 +29,8 @@ namespace Maledictus.GameMenu
 
         [Space(15f)]
         [Header("Events")]
-        [SerializeField] private ScriptableEventGearSlotData _onGearSlotSelected;
-        [SerializeField] private ScriptableEventNoParam _onItemSelected;
+        [SerializeField] private List<ScriptableEventGearSlotData> _onGearSlotSelected;
+        [SerializeField] private List<ScriptableEventNoParam> _onItemSelected;
 
         private Transform _itemSlotParent;
 
@@ -29,21 +41,57 @@ namespace Maledictus.GameMenu
 
         private void OnEnable()
         {
-            _onGearSlotSelected.OnRaised += HandleSelectedGearSlot;
-            _onItemSelected.OnRaised += ItemSelected;
+            foreach (var item in _onGearSlotSelected)
+                item.OnRaised += HandleSelectedGearSlot;
+
+            foreach (var item in _onItemSelected)
+                item.OnRaised += ItemSelected;
+
+            _weaponInventory.OnItemNewNotification.OnRaised += HandleNewNotification;
+
+            foreach (var item in _accessoryInventory)
+                item.OnItemNewNotification.OnRaised += HandleNewNotification;
         }
 
         private void OnDisable()
         {
-            _onGearSlotSelected.OnRaised -= HandleSelectedGearSlot;
-            _onItemSelected.OnRaised -= ItemSelected;
+            foreach (var item in _onGearSlotSelected)
+                item.OnRaised -= HandleSelectedGearSlot;
+
+            foreach (var item in _onItemSelected)
+                item.OnRaised -= ItemSelected;
+
+            _weaponInventory.OnItemNewNotification.OnRaised -= HandleNewNotification;
+
+            foreach (var item in _accessoryInventory)
+                item.OnItemNewNotification.OnRaised -= HandleNewNotification;
         }
 
-        private void Update()
+        private void HandleNewNotification()
         {
-            if (Input.GetKeyDown(KeyCode.Escape) && _itemSlotParent)
-                _onItemSelected.Raise();
+            if (_weaponInventory.InventorySO.HasNewItem)
+            {
+                OnNewNotification?.Invoke(true);
+                return;
+            }
+
+            foreach(var accessory  in _accessoryInventory)
+            {
+                if (accessory.InventorySO.HasNewItem)
+                {
+                    OnNewNotification?.Invoke(true);
+                    return;
+                }
+            }
+
+            OnNewNotification?.Invoke(false);
         }
+
+        //private void Update()
+        //{
+        //    if (Input.GetKeyDown(KeyCode.Escape) && _itemSlotParent)
+        //        _onItemSelected.Raise();
+        //}
 
         private void HandleSelectedGearSlot(GearSlotData data) => HandleGearSlotMovement(data.SlotObject);
 

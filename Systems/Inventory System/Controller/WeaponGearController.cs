@@ -1,46 +1,16 @@
-﻿using Maledictus.Events;
-using Obvious.Soap;
-using UnityEngine;
+﻿using UnityEngine;
 using VInspector;
 
 namespace Maledictus.Inventory
 {
-    public class WeaponGearController : MonoBehaviour
+
+    public class WeaponGearController : BaseGearController<WeaponItemSO>
     {
         [Tab("Controller")]
         [SerializeField] private WeaponInventorySO _weaponInventorySO;
-        [SerializeField] private GameObject _weaponListObject;
+        [SerializeField] private WeaponItemController _weaponItemController;
 
-        [Tab("Events")]
-        [SerializeField] private ScriptableEventNoParam _onItemSelected;
-
-        private void Start() => UpdateGearSlotUI();
-
-        private void OnEnable()
-        {
-            _onItemSelected.OnRaised += UpdateGearSlotUI;
-        }
-
-        private void OnDisable()
-        {
-            _onItemSelected.OnRaised -= UpdateGearSlotUI;
-        }
-
-        private void Update()
-        {
-            if(Input.GetKeyDown(KeyCode.Space))
-                _weaponInventorySO.ToggleSort();
-        }
-
-        private void UpdateGearSlotUI()
-        {
-            _weaponListObject.SetActive(false);
-
-            for (int i = 0; i < this.transform.childCount; i++)
-            {
-                var slotUI = this.transform.GetChild(i).GetComponent<WeaponGearSlotUI>();
-                slotUI.InitializeSlotUI(_weaponInventorySO.GearInventory.Slots[i], _weaponListObject);
-            }
-        }
+        public override InventorySO<WeaponItemSO> InventorySO => _weaponInventorySO;
+        public override BaseItemController<WeaponItemSO> ItemController => _weaponItemController;
     }
 }

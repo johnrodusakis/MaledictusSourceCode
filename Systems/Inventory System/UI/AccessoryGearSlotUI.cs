@@ -1,6 +1,4 @@
-﻿using Maledictus.Events;
-using Maledictus.Tooltip;
-using Obvious.Soap;
+﻿using Maledictus.CustomSoap;
 using UnityEngine;
 using UnityEngine.EventSystems;
 using VInspector;
@@ -11,41 +9,6 @@ namespace Maledictus.Inventory
     {
         [Tab("Events")]
         [SerializeField] private ScriptableEventGearSlotData _onGearSlotSelected;
-
-        [SerializeField] private ScriptableEventItemTooltip _onShowItemTooltip;
-        [SerializeField] private ScriptableEventNoParam _onHideItemTooltip;
-
-        public void InitializeSlotUI(GearSlot<AccessoryItemSO> slot, GameObject itemListObject)
-        {
-            _item = slot.SelectedSlot.Item;
-            _gearSlot = slot;
-
-            _itemListObject = itemListObject;
-
-            var isSlotAvailable = !slot.SelectedSlot.IsEmpty && !slot.IsLocked;
-            var isSlotLocked = slot.IsLocked;
-
-            var weaponItem = slot.SelectedSlot.Item;
-            if (weaponItem != null)
-                InitializeGearSlotUI(isSlotAvailable, isSlotLocked, weaponItem.Icon, weaponItem.ItemRarity);
-            else
-                InitializeGearSlotUI(isSlotAvailable, isSlotLocked, null, ItemRarity.Common);
-        }
-
-        public override void OnPointerEnter(PointerEventData eventData)
-        {
-            if (_item != null)
-                _onShowItemTooltip.Raise(new ItemTooltip(transform.position, _item.Name, _item.Level, _item.ItemRarity, _item.AccessoryType.ToString()));
-
-            base.OnPointerEnter(eventData);
-        }
-
-        public override void OnPointerExit(PointerEventData eventData)
-        {
-            _onHideItemTooltip.Raise();
-
-            base.OnPointerExit(eventData);
-        }
 
         public override void OnPointerClick(PointerEventData eventData)
         {

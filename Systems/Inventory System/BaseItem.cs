@@ -1,4 +1,5 @@
-﻿using Maledictus.Interaction;
+﻿using Maledictus.CustomSoap;
+using Maledictus.Interaction;
 using System.Collections.Generic;
 using UnityEngine;
 using VInspector;
@@ -23,25 +24,33 @@ namespace Maledictus.Inventory
     public class TestCollectWeaponItem
     {
         public WeaponInventorySO TestInventorySO;
+        [SerializeField] private ScriptableEventWeaponItemSO _onWeaponItemCollected;
 
+        private WeaponItemSO SelectRandomItem() => TestInventorySO.ItemDatabaseSO.ItemList[Random.Range(0, TestInventorySO.ItemDatabaseSO.ItemList.Count)];
 
-        [SerializeField] private List<WeaponItemSO> _itemSOs;
+        public void AddRandomItem()
+        {
+            var weapon = SelectRandomItem();
 
-        private WeaponItemSO SelectRandomItem() => _itemSOs[Random.Range(0, _itemSOs.Count)];
-
-        public void AddRandomItem() => TestInventorySO.AddItem(SelectRandomItem());
+            TestInventorySO.AddItem(weapon);
+            _onWeaponItemCollected.Raise(weapon);
+        }
     }
 
     [System.Serializable]
     public class TestCollectAccessoryItem
     {
         public AccessoryInventorySO TestInventorySO;
+        [SerializeField] private ScriptableEventAccessoryItemSO _onAccessoryItemCollected;
 
+        private AccessoryItemSO SelectRandomItem() => TestInventorySO.ItemDatabaseSO.ItemList[Random.Range(0, TestInventorySO.ItemDatabaseSO.ItemList.Count)];
 
-        [SerializeField] private List<AccessoryItemSO> _itemSOs;
+        public void AddRandomItem()
+        {
+            var accessory = SelectRandomItem();
 
-        private AccessoryItemSO SelectRandomItem() => _itemSOs[Random.Range(0, _itemSOs.Count)];
-
-        public void AddRandomItem() => TestInventorySO.AddItem(SelectRandomItem());
+            TestInventorySO.AddItem(accessory);
+            _onAccessoryItemCollected.Raise(accessory);
+        }
     }
 }

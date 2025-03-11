@@ -8,6 +8,7 @@ namespace Maledictus.CustomUI
     {
         [SerializeField] private CustomTextSO _textData;
         [SerializeField] private TMP_Text _text;
+        [SerializeField] private ThemeStyle _style;
 
         [Space(15f)]
         [Header("Override UI")]
@@ -17,7 +18,6 @@ namespace Maledictus.CustomUI
 
         [Space(10f)]
         [SerializeField] private string _overrideText;
-        [SerializeField] private ThemeStyle _style;
 
         [EndIf]
 
@@ -29,6 +29,8 @@ namespace Maledictus.CustomUI
 
         protected override void Configure()
         {
+            _text.font = _textData.Theme.GetTextFont(_style);
+
             if (_override)
             {
                 SetText(_overrideText);

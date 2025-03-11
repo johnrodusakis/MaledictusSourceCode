@@ -6,23 +6,38 @@ namespace Maledictus.GameMenu
 
     public partial class GameMenuController
     {
-        internal class CharacterTab : BaseState
+        internal class CharacterTab : BaseGameMenuState
         {
-            private GameObject _characterGO;
+            private readonly CharacterTabUI _characterTabUI;
 
-            public CharacterTab(GameObject go)
+            protected override CanvasGroup CanvasGroup => _characterTabUI.GetComponent<CanvasGroup>();
+
+            public CharacterTab(CharacterTabUI characterTabUI, GameMenuTabUI menuTabUI)
             {
-                _characterGO = go;
+                _characterTabUI = characterTabUI;
+                _gameMenuTabUI = menuTabUI;
+
+                _characterTabUI.OnNewNotification += HandleNotificationPopUp;
+            }
+
+            protected override void RegisterEvents()
+            {
+                _characterTabUI.OnNewNotification += HandleNotificationPopUp;
+            }
+
+            protected override void UnregisterEvents()
+            {
+                _characterTabUI.OnNewNotification -= HandleNotificationPopUp;
             }
 
             public override void OnEnter()
             {
-                _characterGO.SetActive(true);
+                base.OnEnter();
             }
 
             public override void OnExit()
             {
-                _characterGO.SetActive(false);
+                base.OnExit();
             }
 
             public override void Tick()

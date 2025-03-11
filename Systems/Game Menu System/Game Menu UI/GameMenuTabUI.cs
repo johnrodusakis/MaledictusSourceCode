@@ -1,6 +1,6 @@
 ﻿using DG.Tweening;
 using Maledictus.CustomUI;
-using Maledictus.Events;
+using Maledictus.CustomSoap;
 using UnityEngine;
 using UnityEngine.EventSystems;
 using VInspector;
@@ -14,7 +14,7 @@ namespace Maledictus.GameMenu
         [Space(15f)]
         [Header("UI Binding")]
         [SerializeField] private CustomText _tabText;
-        [SerializeField] private CustomImage _newImage;
+        [SerializeField] private NotificationUI _notificationUI;
 
         [Space(15f)]
         [Header("Events")]
@@ -35,10 +35,10 @@ namespace Maledictus.GameMenu
 
         private void OnValidate()
         {
+            _tabText.SetText(_gameMenuTab.ToSpacedString());
+
             if (_override)
-            {
                 _tabText.SetText(_tabName);
-            }
         }
 
         public void OnPointerEnter(PointerEventData eventData)
@@ -69,9 +69,7 @@ namespace Maledictus.GameMenu
 
         }
 
-        [Button] public void ShowAlert() => _newImage.EnableImage(true);
-        [Button] public void HideAlert() => _newImage.EnableImage(false);
-
+        public void DisplayNotification(bool visible) => _notificationUI.DisplayNotification(visible);
         public void SelectTab() => HandleSelectedTab(true);
         public void DeselectTab() => HandleSelectedTab(false);
 

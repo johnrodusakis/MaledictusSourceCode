@@ -5,11 +5,10 @@ namespace Maledictus.Inventory
 {
     public enum WeaponType
     {
-        Swords,
-        Axes,
-        Scythes,
-        Spears,
-        Maces,
+        Short,
+        Long,
+        Great,
+        Curved
     }
 
     [CreateAssetMenu(menuName = "Inventory System/Item/Weapon")]
@@ -19,8 +18,12 @@ namespace Maledictus.Inventory
 
         [Min(1)] public int Damage;
 
-        private void Awake()
+        public string WeaponLabel => string.Concat(WeaponType, " Blades");
+
+        protected override void Awake()
         {
+            base.Awake();
+
             Category = (int)WeaponType;
             ItemType = ItemType.Weapon;
             Stackable = false; 

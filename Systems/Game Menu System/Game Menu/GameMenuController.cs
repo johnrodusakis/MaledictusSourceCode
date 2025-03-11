@@ -1,11 +1,13 @@
 ﻿using System;
 using System.Collections.Generic;
 using UnityEngine;
-using Maledictus.Events;
+using Maledictus.CustomSoap;
 
 namespace Maledictus.GameMenu
 {
+    using Maledictus.Codex;
     using Maledictus.StateMachine;
+    using SomniaGames.Persistence;
 
     [System.Serializable]
     public enum GameMenuTab
@@ -13,15 +15,15 @@ namespace Maledictus.GameMenu
         Character,
         Techniques,
         SkillTree,
-        Bestiary,
         Map,
         Quests,
         Items,
-        HuntersGuidebook
+        HuntersCodeX
     }
 
     public partial class GameMenuController : MonoBehaviour
     {
+        [SerializeField] private GameMenuTab _initialTab;
         [SerializeField] private List<GameMenuTabUI> _gameMenuHeaderTabs = new();
         [SerializeField] private List<GameObject> _gameMenuBodyTabs = new();
 
@@ -32,7 +34,7 @@ namespace Maledictus.GameMenu
         private int _selectedTab;
 
         private StateMachine _stateMachine;
-        
+
         private void OnEnable()
         {
             _onGameMenuTabSelected.OnRaised += SelectTab;
@@ -49,26 +51,28 @@ namespace Maledictus.GameMenu
 
         private void Start()
         {
+            HideAllGameMenuTabs();
+
             _stateMachine = new StateMachine();
 
-            var characterTab = new CharacterTab(_gameMenuBodyTabs[0]);
-            var techniquesTab = new TechniquesTab(_gameMenuBodyTabs[1]);
-            var skillTreeTab = new SkillTreeTab(_gameMenuBodyTabs[2]);
-            var bestiaryTab = new BestiaryTab(_gameMenuBodyTabs[3]);
-            var mapTab = new MapTab(_gameMenuBodyTabs[4]);
-            var questTab = new QuestTab(_gameMenuBodyTabs[5]);
-            var itemsTab = new ItemsTab(_gameMenuBodyTabs[6]);
-            var huntersGuidbookTab = new HuntersGuidbookTab(_gameMenuBodyTabs[7]);
+            var characterTab = new CharacterTab(_gameMenuBodyTabs[0].GetComponent<CharacterTabUI>(), _gameMenuHeaderTabs[0]);
+            var techniquesTab = new TechniquesTab(_gameMenuBodyTabs[1], _gameMenuHeaderTabs[1]);
+            var skillTreeTab = new SkillTreeTab(_gameMenuBodyTabs[2], _gameMenuHeaderTabs[2]);
+            var mapTab = new MapTab(_gameMenuBodyTabs[3], _gameMenuHeaderTabs[3]);
+            var questTab = new QuestTab(_gameMenuBodyTabs[4], _gameMenuHeaderTabs[4]);
+            var itemsTab = new ItemsTab(_gameMenuBodyTabs[5], _gameMenuHeaderTabs[5]);
+            var huntersCodexTab = new HuntersCodexTab(_gameMenuBodyTabs[6].GetComponent<CodexController>(), _gameMenuHeaderTabs[6]);
 
-            HandleTransitions(characterTab, techniquesTab, skillTreeTab, bestiaryTab, mapTab, questTab, itemsTab, huntersGuidbookTab);
+            HandleTransitions(characterTab, techniquesTab, skillTreeTab, mapTab, questTab, itemsTab, huntersCodexTab);
 
             _stateMachine.SetState(characterTab);
-            SelectTab(GameMenuTab.Character);
+
+            SelectTab(_initialTab);
         }
 
-        private void HandleTransitions(CharacterTab characterTab, TechniquesTab techniquesTab, SkillTreeTab skillTreeTab, BestiaryTab bestiaryTab, MapTab mapTab, QuestTab questTab, ItemsTab itemsTab, HuntersGuidbookTab huntersGuidbookTab)
+        private void HandleTransitions(CharacterTab characterTab, TechniquesTab techniquesTab, SkillTreeTab skillTreeTab, MapTab mapTab, QuestTab questTab, ItemsTab itemsTab, HuntersCodexTab huntersCodexTab)
         {
-            void AddStateTransition(IState from, IState to, Func<bool> condition) => _stateMachine.AddTransition(from, to, condition);
+            //void AddStateTransition(IState from, IState to, Func<bool> condition) => _stateMachine.AddTransition(from, to, condition);
             void AddAnyStateTransition(IState to, Func<bool> condition) => _stateMachine.AddTransition(to, condition);
 
             #region Transitions
@@ -78,27 +82,25 @@ namespace Maledictus.GameMenu
 
             #region Any Transitions
 
-            AddAnyStateTransition(characterTab, CharacterTab());
-            AddAnyStateTransition(techniquesTab, TechniquesTab());
-            AddAnyStateTransition(skillTreeTab, SkillTreeTab());
-            AddAnyStateTransition(bestiaryTab, BestiaryTab());
-            AddAnyStateTransition(mapTab, MapTab());
-            AddAnyStateTransition(questTab, QuestsTab());
-            AddAnyStateTransition(itemsTab, ItemsTab());
-            AddAnyStateTransition(huntersGuidbookTab, HuntersGuidebookTab());
+            AddAnyStateTransition(characterTab,     CharacterTab());
+            AddAnyStateTransition(techniquesTab,    TechniquesTab());
+            AddAnyStateTransition(skillTreeTab,     SkillTreeTab());
+            AddAnyStateTransition(mapTab,           MapTab());
+            AddAnyStateTransition(questTab,         QuestsTab());
+            AddAnyStateTransition(itemsTab,         ItemsTab());
+            AddAnyStateTransition(huntersCodexTab,  HuntersCodexTab());
 
             #endregion
 
             #region Conditions
 
-            Func<bool> CharacterTab()           => () => _selectedTab == (int)GameMenuTab.Character;
-            Func<bool> TechniquesTab()          => () => _selectedTab == (int)GameMenuTab.Techniques;
-            Func<bool> SkillTreeTab()           => () => _selectedTab == (int)GameMenuTab.SkillTree;
-            Func<bool> BestiaryTab()            => () => _selectedTab == (int)GameMenuTab.Bestiary;
-            Func<bool> MapTab()                 => () => _selectedTab == (int)GameMenuTab.Map;
-            Func<bool> QuestsTab()              => () => _selectedTab == (int)GameMenuTab.Quests;
-            Func<bool> ItemsTab()               => () => _selectedTab == (int)GameMenuTab.Items;
-            Func<bool> HuntersGuidebookTab()    => () => _selectedTab == (int)GameMenuTab.HuntersGuidebook;
+            Func<bool> CharacterTab()       => () => _selectedTab == (int)GameMenuTab.Character;
+            Func<bool> TechniquesTab()      => () => _selectedTab == (int)GameMenuTab.Techniques;
+            Func<bool> SkillTreeTab()       => () => _selectedTab == (int)GameMenuTab.SkillTree;
+            Func<bool> MapTab()             => () => _selectedTab == (int)GameMenuTab.Map;
+            Func<bool> QuestsTab()          => () => _selectedTab == (int)GameMenuTab.Quests;
+            Func<bool> ItemsTab()           => () => _selectedTab == (int)GameMenuTab.Items;
+            Func<bool> HuntersCodexTab()    => () => _selectedTab == (int)GameMenuTab.HuntersCodeX;
 
             #endregion
         }
@@ -120,7 +122,7 @@ namespace Maledictus.GameMenu
         {
             DeselectAllTabs();
 
-            if (_selectedTab == (int)GameMenuTab.HuntersGuidebook)
+            if (_selectedTab == (int)GameMenuTab.HuntersCodeX)
                 _selectedTab = (int)GameMenuTab.Character;
             else
                 _selectedTab++;
@@ -140,7 +142,7 @@ namespace Maledictus.GameMenu
             DeselectAllTabs();
 
             if (_selectedTab == (int)GameMenuTab.Character)
-                _selectedTab = (int)GameMenuTab.HuntersGuidebook;
+                _selectedTab = (int)GameMenuTab.HuntersCodeX;
             else
                 _selectedTab--;
 
@@ -153,178 +155,168 @@ namespace Maledictus.GameMenu
                 tab.DeselectTab();
         }
 
-        internal class TechniquesTab : BaseState
+        private void HideAllGameMenuTabs()
         {
-            private GameObject _techniquesGO;
+            foreach (var go in _gameMenuBodyTabs)
+            {
+                var canvasGroup = go.GetComponent<CanvasGroup>();
+                canvasGroup.alpha = 0;
+                canvasGroup.interactable = false;
+                canvasGroup.blocksRaycasts = false;
+            }
+        }
 
-            public TechniquesTab(GameObject go)
+        internal class TechniquesTab : BaseGameMenuState
+        {
+            private readonly GameObject _techniquesGO;
+
+            protected override CanvasGroup CanvasGroup => _techniquesGO.GetComponent<CanvasGroup>();
+
+            public TechniquesTab(GameObject go, GameMenuTabUI menuTabUI)
             {
                 _techniquesGO = go;
+                _gameMenuTabUI = menuTabUI;
             }
 
             public override void OnEnter()
             {
-                _techniquesGO.SetActive(true);
+                base.OnEnter();
             }
 
             public override void OnExit()
             {
-                _techniquesGO.SetActive(false);
-            }
-
-            public override void Tick()
-            {
-
+                base.OnExit();
             }
         }
 
-        internal class SkillTreeTab : BaseState
+        internal class SkillTreeTab : BaseGameMenuState
         {
-            private GameObject _skillTreeGO;
+            private readonly GameObject _skillTreeGO;
 
-            public SkillTreeTab(GameObject go)
+            protected override CanvasGroup CanvasGroup => _skillTreeGO.GetComponent<CanvasGroup>();
+
+            public SkillTreeTab(GameObject go, GameMenuTabUI menuTabUI)
             {
                 _skillTreeGO = go;
+                _gameMenuTabUI = menuTabUI;
             }
 
             public override void OnEnter()
             {
-                _skillTreeGO.SetActive(true);
+                base.OnEnter();
             }
 
             public override void OnExit()
             {
-                _skillTreeGO.SetActive(false);
-            }
-
-            public override void Tick()
-            {
-
+                base.OnExit();
             }
         }
 
-        internal class BestiaryTab : BaseState
+        internal class MapTab : BaseGameMenuState
         {
-            private GameObject _bestiaryGO;
+            private readonly GameObject _mapGO;
 
-            public BestiaryTab(GameObject go)
-            {
-                _bestiaryGO = go;
-            }
+            protected override CanvasGroup CanvasGroup => _mapGO.GetComponent<CanvasGroup>();
 
-            public override void OnEnter()
-            {
-                _bestiaryGO.SetActive(true);
-            }
-
-            public override void OnExit()
-            {
-                _bestiaryGO.SetActive(false);
-            }
-
-            public override void Tick()
-            {
-
-            }
-        }
-
-        internal class MapTab : BaseState
-        {
-            private GameObject _mapGO;
-
-            public MapTab(GameObject go)
+            public MapTab(GameObject go, GameMenuTabUI menuTabUI)
             {
                 _mapGO = go;
+                _gameMenuTabUI = menuTabUI;
             }
 
             public override void OnEnter()
             {
-                _mapGO.SetActive(true);
+                base.OnEnter();
             }
 
             public override void OnExit()
             {
-                _mapGO.SetActive(false);
-            }
-
-            public override void Tick()
-            {
-
+                base.OnExit();
             }
         }
 
-        internal class QuestTab : BaseState
+        internal class QuestTab : BaseGameMenuState
         {
-            private GameObject _questGO;
+            private readonly GameObject _questGO;
 
-            public QuestTab(GameObject go)
+            protected override CanvasGroup CanvasGroup => _questGO.GetComponent<CanvasGroup>();
+
+            public QuestTab(GameObject go, GameMenuTabUI menuTabUI)
             {
                 _questGO = go;
+                _gameMenuTabUI = menuTabUI;
             }
 
             public override void OnEnter()
             {
-                _questGO.SetActive(true);
+                base.OnEnter();
             }
 
             public override void OnExit()
             {
-                _questGO.SetActive(false);
-            }
-
-            public override void Tick()
-            {
-
+                base.OnExit();
             }
         }
 
-        internal class ItemsTab : BaseState
+        internal class ItemsTab : BaseGameMenuState
         {
-            private GameObject _itemsGO;
+            private readonly GameObject _itemsGO;
 
-            public ItemsTab(GameObject go)
+            protected override CanvasGroup CanvasGroup => _itemsGO.GetComponent<CanvasGroup>();
+
+            public ItemsTab(GameObject go, GameMenuTabUI menuTabUI)
             {
                 _itemsGO = go;
+                _gameMenuTabUI = menuTabUI;
             }
 
             public override void OnEnter()
             {
-                _itemsGO.SetActive(true);
+                base.OnEnter();
             }
 
             public override void OnExit()
             {
-                _itemsGO.SetActive(false);
-            }
-
-            public override void Tick()
-            {
-
+                base.OnExit();
             }
         }
 
-        internal class HuntersGuidbookTab : BaseState
+        internal class HuntersCodexTab : BaseGameMenuState
         {
-            private GameObject _huntersGuidbookGO;
+            private readonly CodexController _codexController;
 
-            public HuntersGuidbookTab(GameObject go)
+            protected override CanvasGroup CanvasGroup => _codexController.GetComponent<CanvasGroup>();
+
+            public HuntersCodexTab(CodexController controller, GameMenuTabUI menuTabUI)
             {
-                _huntersGuidbookGO = go;
+                _codexController = controller;
+                _gameMenuTabUI = menuTabUI;
+
+                _codexController.OnNewNotification += HandleNotificationPopUp;
+            }
+
+            protected override void RegisterEvents()
+            {
+                _codexController.OnNewNotification += HandleNotificationPopUp;
+            }
+
+            protected override void UnregisterEvents()
+            {
+                _codexController.OnNewNotification -= HandleNotificationPopUp;
             }
 
             public override void OnEnter()
             {
-                _huntersGuidbookGO.SetActive(true);
+                base.OnEnter();
+
+                _codexController.OnEnter();
             }
 
             public override void OnExit()
             {
-                _huntersGuidbookGO.SetActive(false);
-            }
+                base.OnExit();
 
-            public override void Tick()
-            {
-
+                _codexController.OnExit();
             }
         }
     }

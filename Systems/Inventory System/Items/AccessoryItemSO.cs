@@ -16,8 +16,12 @@ namespace Maledictus.Inventory
 
         [Min(1)] public int Armor;
 
-        private void Awake()
+        public string CategoryLabel => string.Concat(AccessoryType);
+
+        protected override void Awake()
         {
+            base.Awake();
+
             Category = (int)AccessoryType;
             ItemType = ItemType.Accessory;
             Stackable = false;
